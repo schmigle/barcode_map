@@ -10,4 +10,4 @@ RUN apt-get update && apt-get upgrade -y && \
     apt-get clean && rm -rf /var/lib/apt/lists/* barcode_map
 
 # Set the default entrypoint to mimic %runscript behavior
-ENTRYPOINT ["/bin/bash", "/barcode_map.sh"]
+ENTRYPOINT ["python", "/barcode_streamlit.py"]
