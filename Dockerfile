@@ -1,8 +1,7 @@
 FROM ubuntu:24.04
 
 RUN apt-get update && \
-    apt-get install -y python3 python3-pip minimap2 seqkit wget perl python3-biopython && \
-    pip3 install flask flask-cors
+    apt-get install -y python3 python3-pip python3-flask python3-flask-cors minimap2 seqkit wget perl python3-biopython
 
 WORKDIR /app
 COPY . /app
