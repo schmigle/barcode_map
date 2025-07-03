@@ -71,13 +71,19 @@
         const txt = await res.text();
         const lines = txt.trim().split(/\r?\n/);
         const errors = lines.filter(line => /error|fail|exception/i.test(line));
-
         fulllog.textContent = txt;
 
         if (!res.ok || errors.length > 0) {
           output.textContent = errors.join('\n') || 'Unknown error.';
         } else {
-          output.textContent = lines[lines.length - 1] || '(No output)';
+          // Find the final results block printed by barcode_map
+          const resultStart = lines.findIndex(line => /top matches/i.test(line));
+          if (resultStart !== -1) {
+            const resultLines = lines.slice(resultStart);
+            output.textContent = resultLines.join('\n');
+          } else {
+            output.textContent = lines[lines.length - 1] || '(No output)';
+          }
         }
       } catch (err) {
         message.textContent = "Network or server error: " + err;
