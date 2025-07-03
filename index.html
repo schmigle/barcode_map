@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Barcode Map Runner</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 2em auto; }
+    .error { color: #c00; }
+    .output { white-space: pre-wrap; background: #f4f4f4; padding: 1em; }
+    label { display: block; margin-top: 1em; }
+    input[type="file"] { margin-top: 0.5em; }
+    button { margin-top: 2em; }
+  </style>
+</head>
+<body>
+  <h1>Run barcode_map</h1>
+  <form id="barcodeForm">
+    <label>
+      Barcode (e.g. <code>ACGT_AGCT</code>):
+      <input type="text" name="brackets" id="brackets" required />
+    </label>
+    <label>
+      Reference annotation file:
+      <input type="file" name="annotation" id="annotation" required />
+    </label>
+    <label>
+      Reads file:
+      <input type="file" name="reads" id="reads" required />
+    </label>
+    <button type="submit">Run</button>
+  </form>
+  <div id="message" class="error"></div>
+  <div id="output" class="output"></div>
+  <script>
+    const form = document.getElementById('barcodeForm');
+    const message = document.getElementById('message');
+    const output = document.getElementById('output');
+
+    function reset() {
+      message.textContent = '';
+      output.textContent = '';
+    }
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      reset();
+
+      const brackets = form.brackets.value;
+      const annotation = form.annotation.files[0];
+      const reads = form.reads.files[0];
+
+      // No client-side checks except required fields (handled by browser)
+      const formData = new FormData();
+      formData.append('brackets', brackets);
+      formData.append('annotation', annotation);
+      formData.append('reads', reads);
+
+      output.textContent = "Running... Please wait (this may take a minute or two).";
+      message.textContent = "";
+
+      try {
+        const res = await fetch('/run-barcode-map', {
+          method: 'POST',
+          body: formData
+        });
+        const txt = await res.text();
+        if (res.ok) {
+          output.textContent = txt;
+        } else {
+          output.textContent = txt;
+        }
+      } catch (err) {
+        message.textContent = "Network or server error: " + err;
+      }
+    });
+  </script>
+</body>
+</html>
