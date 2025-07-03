@@ -65,9 +65,17 @@
       formData.append('annotation', annotation);
       formData.append('reads', reads);
       
+      // Debug logging
+      console.log('FASTA file object:', fasta);
+      console.log('FASTA file name:', fasta ? fasta.name : 'no file');
+      console.log('FASTA file size:', fasta ? fasta.size : 'no file');
+      
       // Only append fasta if a file was actually selected
       if (fasta) {
         formData.append('fasta', fasta);
+        console.log('FASTA file added to FormData');
+      } else {
+        console.log('No FASTA file selected - not adding to FormData');
       }
 
       output.textContent = "Running... Please wait (this may take a minute or two).";
