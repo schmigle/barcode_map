@@ -30,6 +30,10 @@
       Reads file:
       <input type="file" name="reads" id="reads" required />
     </label>
+    <label>
+      Reference FASTA file (optional):
+      <input type="file" name="fasta" id="fasta" />
+    </label>
     <button type="submit">Run</button>
   </form>
   <div id="message" class="error"></div>
@@ -54,11 +58,13 @@
       const brackets = form.brackets.value;
       const annotation = form.annotation.files[0];
       const reads = form.reads.files[0];
+      const fasta = form.fasta.files[0];
 
       const formData = new FormData();
       formData.append('brackets', brackets);
       formData.append('annotation', annotation);
       formData.append('reads', reads);
+      formData.append('fasta', fasta);
 
       output.textContent = "Running... Please wait (this may take a minute or two).";
       message.textContent = "";
