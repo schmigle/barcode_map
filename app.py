@@ -15,20 +15,28 @@ def run_barcode_map():
     brackets = request.form.get('brackets', '').strip()
     annotation = request.files.get('annotation')
     reads = request.files.get('reads')
-
+    fasta = request.files.get('fasta')  # Get the optional FASTA file
+    
     jobdir = tempfile.mkdtemp()
     try:
         ann_path = os.path.join(jobdir, annotation.filename)
         reads_path = os.path.join(jobdir, reads.filename)
         annotation.save(ann_path)
         reads.save(reads_path)
-
+        
         command = [
             "/app/barcode_map.sh",
             "-b", brackets,
             "-a", ann_path,
             "-r", reads_path,
         ]
+        
+        # Add FASTA file to command if it was uploaded
+        if fasta and fasta.filename:
+            fasta_path = os.path.join(jobdir, fasta.filename)
+            fasta.save(fasta_path)
+            command.extend(["-f", fasta_path])
+        
         proc = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, cwd="/app")
         return Response(proc.stdout, mimetype='text/plain')
     except Exception as e:
