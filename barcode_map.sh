@@ -320,6 +320,7 @@ done
 # Perform alignment
 minimap2 -ax map-ont -t "$threads" "$fasta" search_reads.fastq -o "$sam"
 # Process results
+print("Top matches")
 if [ ! -z "$annotation" ]; then
     process_mapping_results "$sam" "$annotation" "$matches"
 else
