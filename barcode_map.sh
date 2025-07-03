@@ -174,9 +174,9 @@ process_mapping_results() {
     fi
     
     if is_gff_format "$annotation_file"; then
-        python3 /annotation_parser.py -i "$annotation_file" --gff -p "$positions"
+        python3 /app/annotation_parser.py -i "$annotation_file" --gff -p "$positions"
     elif is_gbk_format "$annotation_file"; then
-        python3 /annotation_parser.py -i "$annotation_file" --gb -p "$positions"
+        python3 /app/annotation_parser.py -i "$annotation_file" --gb -p "$positions"
     rm -f "$cds_info"
     fi
 }
