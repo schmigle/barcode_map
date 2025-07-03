@@ -11,6 +11,8 @@
     label { display: block; margin-top: 1em; }
     input[type="file"] { margin-top: 0.5em; }
     button { margin-top: 2em; }
+    details { margin-top: 1em; }
+    summary { cursor: pointer; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -32,15 +34,19 @@
   </form>
   <div id="message" class="error"></div>
   <div id="output" class="output"></div>
+  <details><summary>Show full log</summary><pre id="fulllog" class="output"></pre></details>
   <script>
     const form = document.getElementById('barcodeForm');
     const message = document.getElementById('message');
     const output = document.getElementById('output');
+    const fulllog = document.getElementById('fulllog');
 
     function reset() {
       message.textContent = '';
       output.textContent = '';
+      fulllog.textContent = '';
     }
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       reset();
@@ -49,7 +55,6 @@
       const annotation = form.annotation.files[0];
       const reads = form.reads.files[0];
 
-      // No client-side checks except required fields (handled by browser)
       const formData = new FormData();
       formData.append('brackets', brackets);
       formData.append('annotation', annotation);
@@ -64,10 +69,15 @@
           body: formData
         });
         const txt = await res.text();
-        if (res.ok) {
-          output.textContent = txt;
+        const lines = txt.trim().split(/\r?\n/);
+        const errors = lines.filter(line => /error|fail|exception/i.test(line));
+
+        fulllog.textContent = txt;
+
+        if (!res.ok || errors.length > 0) {
+          output.textContent = errors.join('\n') || 'Unknown error.';
         } else {
-          output.textContent = txt;
+          output.textContent = lines[lines.length - 1] || '(No output)';
         }
       } catch (err) {
         message.textContent = "Network or server error: " + err;
