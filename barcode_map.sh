@@ -187,7 +187,7 @@ fasta=''
 matches='10'
 reads=''
 sam='barcode_aln.sam'
-threads='4'
+threads='1'
 annotation=''
 
 # DEBUG: Print all arguments received
@@ -204,7 +204,7 @@ usage() {
     echo " -m, --matches Number of matches to list (default: 10)"
     echo " -r, --reads FASTQ file containing reads"
     echo " -s, --sam Output SAM file name (default: barcode_aln.sam)"
-    echo " -t, --threads Thread count (default: 4)"
+    echo " -t, --threads Thread count (default: 1)"
     echo " -h, --help Display this help"
     exit 1
 }
