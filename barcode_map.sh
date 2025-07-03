@@ -190,6 +190,10 @@ sam='barcode_aln.sam'
 threads='4'
 annotation=''
 
+# DEBUG: Print all arguments received
+echo "DEBUG: Script called with arguments: $@"
+echo "DEBUG: Number of arguments: $#"
+
 # Usage function
 usage() {
     echo "Usage: barcode_map.sh [-b brackets] [-f fasta] [-m matches] [-r reads] [-s sam] [-t thread_count] [-a annotation]"
@@ -222,6 +226,8 @@ while [[ $# -gt 0 ]]; do
             ;;
         -f|--fasta)
             fasta="$(readlink -f "$2")"
+            echo "DEBUG: FASTA argument received: '$2'"
+            echo "DEBUG: FASTA resolved path: '$fasta'"
             temp_file=$(read_file_head "$fasta")
             if [ $? -eq 0 ]; then
                 if ! check_fasta_format "$temp_file"; then
@@ -280,6 +286,16 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# DEBUG: Print final variable values
+echo "DEBUG: Final variable values:"
+echo "DEBUG: brackets='$brackets'"
+echo "DEBUG: fasta='$fasta'"
+echo "DEBUG: reads='$reads'"
+echo "DEBUG: annotation='$annotation'"
+echo "DEBUG: matches='$matches'"
+echo "DEBUG: threads='$threads'"
+echo "DEBUG: sam='$sam'"
+
 # Validate required arguments
 if [ -z "$brackets" ]; then
     echo "Error: Missing brackets"
@@ -293,21 +309,35 @@ if [ -z "$reads" ]; then
     exit 1
 fi
 
-if ! is_gff_format "$annotation" && ! is_gbk_format "$annotation"; then
-    echo "Error: annotation file must be in GenBank or GFF3 format"
+# Check if we have either a fasta file or annotation file
+if [ -z "$fasta" ] && [ -z "$annotation" ]; then
+    echo "Error: Either a reference FASTA file or annotation file must be provided"
     usage
     exit 1
 fi
-# Handle annotation conversion if needed
+
+# If we have an annotation file, validate its format
+if [ -n "$annotation" ]; then
+    if ! is_gff_format "$annotation" && ! is_gbk_format "$annotation"; then
+        echo "Error: annotation file must be in GenBank or GFF3 format"
+        usage
+        exit 1
+    fi
+fi
+
+# Handle FASTA file creation - only convert annotation if no FASTA was provided
 if [ -z "$fasta" ] && [ -n "$annotation" ]; then
+    echo "DEBUG: No FASTA provided, converting annotation to FASTA..."
     ./any2fasta "$annotation" > "reference.fasta" || {
+        echo "Error: Failed to convert annotation to FASTA"
         exit 1
     }
     fasta="reference.fasta"
-elif [ -z "$fasta" ] && [ -z "$annotation" ]; then
-    echo "Error: no reference or annotation file"
-    usage
-    exit 1
+    echo "DEBUG: Converted annotation to FASTA: $fasta"
+elif [ -n "$fasta" ]; then
+    echo "DEBUG: Using provided FASTA file: $fasta"
+else
+    echo "DEBUG: No FASTA file and no annotation - this shouldn't happen"
 fi
 
 for pattern in "$brackets" "$(echo "$brackets" | rev)"; do
