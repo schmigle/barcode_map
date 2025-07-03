@@ -64,7 +64,11 @@
       formData.append('brackets', brackets);
       formData.append('annotation', annotation);
       formData.append('reads', reads);
-      formData.append('fasta', fasta);
+      
+      // Only append fasta if a file was actually selected
+      if (fasta) {
+        formData.append('fasta', fasta);
+      }
 
       output.textContent = "Running... Please wait (this may take a minute or two).";
       message.textContent = "";
